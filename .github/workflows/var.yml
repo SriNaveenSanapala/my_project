@@ -1,7 +1,5 @@
-name: Build and Push Docker naveen
 
-##hi this is naveen from auropro
-
+name: Build and Push Docker Image to ECR
 
 on:
   push:
