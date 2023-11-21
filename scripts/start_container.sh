@@ -1,11 +1,17 @@
 #!/bin/bash
 set -e
 
-# Authenticate Docker with ECR
-/usr/local/bin/aws ecr get-login-password --region us-east-1 | /usr/bin/docker login --username AWS --password-stdin 571888835380.dkr.ecr.us-east-1.amazonaws.com
+# Ensure the AWS CLI and Docker commands are in the PATH
+export PATH=$PATH:/usr/bin
+
+# Get ECR authorization token
+TOKEN=$(aws ecr-public get-authorization-token --region us-east-1 --output text --query 'authorizationData[].authorizationToken' | base64 -d | cut -d: -f2)
+
+# Authenticate Docker with ECR using the authorization token
+echo $TOKEN | docker login --username AWS --password-stdin public.ecr.aws/c3x0j4u6
 
 # Pull the Docker image from ECR
-/usr/bin/docker pull 571888835380.dkr.ecr.us-east-1.amazonaws.com/python-repo:latest
+docker pull public.ecr.aws/c3x0j4u6/naveen_ers:latest
 
-# Run the Docker image as a containers
-/usr/bin/docker run -d -p 8000:5000 571888835380.dkr.ecr.us-east-1.amazonaws.com/python-repo:latest
+# Run the Docker image as a container
+docker run -d -p 8000:5000 public.ecr.aws/c3x0j4u6/naveen_ers:latest
