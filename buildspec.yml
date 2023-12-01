@@ -1,0 +1,55 @@
+version: 0.2
+
+#env:
+  #variables:
+     # key: "value"
+     # key: "value"
+  #parameter-store:
+     # key: "value"
+     # key: "value"
+
+phases:
+  install:
+    runtime-versions:
+      python : 3.11
+      # name: version
+    commands:
+      - echo "Installing dependencies..."
+      - pip install -r project/requirements.txt
+  pre_build:
+    commands:
+      - echo "No authentication needed for ECR Public"
+      - aws --version
+
+
+  build:
+    commands:
+      - echo "Build Docker image..."
+      - cd project
+      - docker build -t naveen_ers .
+
+  post_build:
+    commands:
+      - echo "Tag Docker image for ECR Public"
+      - docker tag naveen_ers:latest public.ecr.aws/c3x0j4u6/naveen_ers:latest
+      - echo "Push Docker image to ECR Public"
+      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/c3x0j4u6
+      - docker push public.ecr.aws/c3x0j4u6/naveen_ers:latest
+#reports:
+  #report-name-or-arn:
+    #files:
+      # - location
+      # - location
+    #base-directory: location
+    #discard-paths: yes
+    #file-format: JunitXml | CucumberJson
+artifacts:
+  files:
+    - '**/*'
+  base-directory: project
+  #name: $(date +%Y-%m-%d)
+  #discard-paths: yes
+  #base-directory: location
+#cache:
+  #paths:
+    # - paths
